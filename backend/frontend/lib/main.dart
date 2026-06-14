@@ -30,7 +30,6 @@ class MainLayoutShell extends StatefulWidget {
 }
 
 class _MainLayoutShellState extends State<MainLayoutShell> {
-  // --- STATE VARIABLES ---
   late io_client.Socket socket;
   int _currentSidebarIndex = 0;
   
@@ -42,7 +41,6 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
   int avgConsultancyTime = 12; 
   int totalPatientsServed = 0;
 
-  // Accidental Double-Click Protection Flag
   bool _isCallNextLoading = false; 
 
   final TextEditingController nameController = TextEditingController();
@@ -55,9 +53,7 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
     _initSocket();
   }
 
-  // --- WEBSOCKET PIPELINE INITIALIZATION ---
   void _initSocket() {
-    // UPDATED: Connected securely over your live public ngrok tunnel portal link
     socket = io_client.io('https://reentry-envoy-component.ngrok-free.dev', <String, dynamic>{
       'transports': ['websocket', 'polling'],
       'autoConnect': true,
@@ -97,7 +93,6 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
     });
   }
 
-  // Double-click interceptor logic with a 2-second safe validation block
   void _handleCallNextWithProtection() async {
     if (_isCallNextLoading) return; 
 
@@ -107,7 +102,6 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
 
     socket.emit('call_next');
 
-    // Hold the lock for exactly 2 seconds to eliminate accidental double clicks
     await Future.delayed(const Duration(seconds: 2));
 
     if (mounted) {
@@ -132,7 +126,6 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
         children: [
           Row(
             children: [
-              // --- NAVIGATION SIDEBAR RAIL ---
               Container(
                 width: 260,
                 decoration: const BoxDecoration(
@@ -164,11 +157,9 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
                 ),
               ),
 
-              // --- MAIN VIEWPORT CONTENT ---
               Expanded(
                 child: Column(
                   children: [
-                    // TOP HEADER WITH LIVE SYNC BADGE
                     Container(
                       height: 70,
                       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -220,7 +211,6 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
                       ),
                     ),
 
-                    // CORE DATA SYSTEM PANEL VIEWS WITH INDEXEDSTACK FOR UI STATE RETENTION
                     Expanded(
                       child: IndexedStack(
                         index: _currentSidebarIndex,
@@ -237,7 +227,6 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
             ],
           ),
 
-          // --- PHASE 4 INTERCEPTOR: OFFLINE NETWORK BANNER GLASS OVERLAY ---
           if (!isConnected)
             Positioned.fill(
               child: Container(
@@ -280,7 +269,6 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
     );
   }
 
-  // VIEW 1: DASHBOARD CONSOLE MANAGEMENT
   Widget _buildDashboardView() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -464,7 +452,6 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
                         ),
                         const SizedBox(height: 16),
                         
-                        // --- PHASE 4 PREMIUM MICRO-INTERACTION ANIMATION SWITCHER ---
                         SizedBox(
                           height: 100,
                           child: AnimatedSwitcher(
@@ -503,7 +490,6 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
     );
   }
 
-  // VIEW 2: ACTIVE PATIENTS GRID DATA LIST
   Widget _buildPatientsView() {
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -599,7 +585,6 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
     );
   }
 
-  // VIEW 3: SYSTEM RULES AND CONFIGURATIONS
   Widget _buildSettingsView() {
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -656,7 +641,6 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
     );
   }
 
-  // --- UI COMPONENT BUILDERS ---
   Widget _buildMetricCard(String title, String value, IconData icon) {
     return Expanded(
       child: Container(
