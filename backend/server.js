@@ -15,8 +15,6 @@ let activeTokenDisplay = "NONE";
 
 function broadcastQueueUpdate() {
     let nextToken = patientQueue.length > 0 ? `TOKEN ${tokenCounter + 1}` : "NONE ACTIVE";
-    
-    // Crucial: Sending the data structures downstream
     io.emit('queue_update', {
         activeToken: activeTokenDisplay,
         nextToken: nextToken,
