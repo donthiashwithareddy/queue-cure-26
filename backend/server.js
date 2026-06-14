@@ -1,61 +1,63 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
+app.use(express.json());
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: { origin: "*", methods: ["GET", "POST"] }
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
 });
 
-let patientQueue = [];
-let tokenCounter = 0;
-let activeTokenDisplay = "NONE";
+let patientsQueue = [];
 
-function broadcastQueueUpdate() {
-    let nextToken = patientQueue.length > 0 ? `TOKEN ${tokenCounter + 1}` : "NONE ACTIVE";
-    io.emit('queue_update', {
-        activeToken: activeTokenDisplay,
-        nextToken: nextToken,
-        patientQueue: patientQueue 
-    });
-}
+app.get('/', (req, res) => {
+  res.send({ status: "Queue Cure Server Engine Live", activePatients: patientsQueue.length });
+});
 
 io.on('connection', (socket) => {
-    console.log(`🟢 Flutter client connected: ${socket.id}`);
-    broadcastQueueUpdate();
+  console.log(`Pipeline handshake established: Client connected -> ${socket.id}`);
 
-    socket.on('add_patient', (data) => {
-        console.log(`📝 Added: ${data.name}`);
-        patientQueue.push(data.name);
-        broadcastQueueUpdate();
-    });
+  socket.emit('queue_update', patientsQueue);
 
-    socket.on('call_next', () => {
-        if (patientQueue.length > 0) {
-            tokenCounter++;
-            patientQueue.shift(); 
-            activeTokenDisplay = tokenCounter.toString();
-        } else {
-            activeTokenDisplay = "NONE";
-        }
-        broadcastQueueUpdate();
-    });
+  socket.on('add_patient', (patientName) => {
+    if (!patientName || patientName.trim() === "") return;
+    
+    const newPatient = {
+      id: Date.now().toString(),
+      name: patientName.trim(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    
+    patientsQueue.push(newPatient);
+    console.log(`Queue Registration Added: ${newPatient.name}`);
+    
+    io.emit('queue_update', patientsQueue);
+  });
 
-    socket.on('reset_queue', () => {
-        console.log(`🧹 Queue Flushed`);
-        patientQueue = [];
-        tokenCounter = 0;
-        activeTokenDisplay = "NONE";
-        broadcastQueueUpdate();
-    });
+  socket.on('call_next', () => {
+    if (patientsQueue.length > 0) {
+      const servedPatient = patientsQueue.shift();
+      console.log(`Token Transition: Now Serving -> ${servedPatient.name}`);
+      
+      io.emit('queue_update', patientsQueue);
+    }
+  });
 
-    socket.on('disconnect', () => {
-        console.log(`🔴 Client disconnected: ${socket.id}`);
-    });
+  // 4. Clean up connection pipelines upon client closeouts
+  socket.on('disconnect', () => {
+    console.log(`Pipeline closed down: Client disconnected -> ${socket.id}`);
+  });
 });
+const PORT = process.env.PORT || 3000;
 
-server.listen(3000, () => {
-    console.log(`🚀 Queue Server running cleanly on port 3000`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 System Engine initialized. Listening on Cloud Port: ${PORT}`);
 });
