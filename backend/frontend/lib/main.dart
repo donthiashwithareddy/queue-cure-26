@@ -54,7 +54,7 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
   }
 
   void _initSocket() {
-    socket = io_client.io('queue-cure-26-production.up.railway.app', <String, dynamic>{
+    socket = io_client.io('https://queue-cure-26-production.up.railway.app', <String, dynamic>{
       'transports': ['websocket', 'polling'],
       'autoConnect': true,
     });
