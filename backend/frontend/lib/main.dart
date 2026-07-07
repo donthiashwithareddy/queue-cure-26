@@ -29,9 +29,11 @@ class MainLayoutShell extends StatefulWidget {
 }
 
 class _MainLayoutShellState extends State<MainLayoutShell> {
+  // Navigation Track State & Sidebar Drawer Toggle State
   String currentTab = 'Dashboard';
   bool isSidebarOpen = true; 
 
+  // Queue Data Store Running in App Memory
   final List<Map<String, dynamic>> patientQueue = [];
   int tokenCounter = 1;
   int totalServedToday = 0;
@@ -46,6 +48,7 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
     timeController.text = avgConsultancyTime.toString();
   }
 
+  // Functional Execution Controllers
   void addPatient() {
     final String enteredName = nameController.text.trim();
     if (enteredName.isNotEmpty) {
@@ -80,6 +83,7 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
     });
   }
 
+  // Dynamic Parameter Recalculations
   int calculateTotalWaitTime() {
     if (patientQueue.length <= 1) return 0;
     int waitTime = 0;
@@ -99,8 +103,9 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    bool isMobile = screenWidth < 800; 
+    bool isMobile = screenWidth < 800; // Auto-detects device layout type
 
+    // Universal sidebar builder logic used for both laptops and sliding drawers
     Widget buildSidebarContent() {
       return Container(
         width: 240,
@@ -116,13 +121,14 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
                   "Queue Cure '26",
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
+                // Toggle Close button visible inside layout menu rail
                 IconButton(
                   icon: const Icon(Icons.menu_open_rounded, color: Colors.grey),
                   onPressed: () {
                     if (isMobile) {
-                      Navigator.pop(context); 
+                      Navigator.pop(context); // Native phone overlay collapse
                     } else {
-                      setState(() => isSidebarOpen = false);
+                      setState(() => isSidebarOpen = false); // Desktop layout close tracking
                     }
                   },
                 ),
@@ -140,15 +146,19 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
     }
 
     return Scaffold(
+      // Native Drawer overlay component used automatically on phone screens
       drawer: isMobile ? Drawer(child: buildSidebarContent()) : null,
       body: Row(
         children: [
+          // 1. LAPTOP SIDEBAR: Hidden completely if on mobile or manually collapsed
           if (!isMobile && isSidebarOpen) buildSidebarContent(),
 
+          // 2. MAIN CORE VIEWS CONTROLLER
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Global responsive Header Strip Layout Container
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   decoration: const BoxDecoration(
@@ -156,6 +166,7 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
                   ),
                   child: Row(
                     children: [
+                      // Trigger Button: Shows Hamburger menu button on phones, or Open tab icon on laptops
                       if (isMobile)
                         Builder(
                           builder: (context) => IconButton(
@@ -177,6 +188,7 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
                   ),
                 ),
 
+                // Active Layout Router Workspace Canvas
                 Expanded(
                   child: SingleChildScrollView(
                     padding: EdgeInsets.all(isMobile ? 16 : 32),
@@ -196,7 +208,7 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
     return InkWell(
       onTap: () {
         setState(() => currentTab = title);
-        if (isMobile) Navigator.pop(context);
+        if (isMobile) Navigator.pop(context); // Closes drawer path overlay on phone taps
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
@@ -234,11 +246,16 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
         return _buildDashboardView(isMobile);
     }
   }
+
+  // ==========================================
+  // VIEW A: RESPONSIVE DASHBOARD MONITOR VIEWS
+  // ==========================================
   Widget _buildDashboardView(bool isMobile) {
     final String currentServing = patientQueue.isNotEmpty ? patientQueue[0]['name'] : 'NONE';
     final String upNext = patientQueue.length > 1 ? patientQueue[1]['name'] : 'NONE ACTIVE';
     final int estTotalWaitTime = calculateTotalWaitTime();
 
+    // Responsive element configuration for metric rows
     Widget metricsRow = Row(
       children: [
         Expanded(child: _buildMetricCard(Icons.timer_outlined, 'Avg Consultancy', '$avgConsultancyTime Mins', Colors.tealAccent)),
@@ -259,6 +276,7 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
       ],
     );
 
+    // Control desk layouts config layout splits
     Widget mainContentLayout = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -448,6 +466,10 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
       ),
     );
   }
+
+  // ==========================================
+  // VIEW B: ACTIVE WAITING REGISTRY REGISTER
+  // ==========================================
   Widget _buildPatientsView() {
     final int totalDelay = calculateTotalWaitTime();
     return Container(
@@ -525,6 +547,10 @@ class _MainLayoutShellState extends State<MainLayoutShell> {
       ),
     );
   }
+
+  // ==========================================
+  // VIEW C: BENCH COMPLIANCE & RULES PARAMETERS
+  // ==========================================
   Widget _buildSettingsView() {
     return Container(
       width: double.infinity,
